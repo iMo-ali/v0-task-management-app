@@ -52,9 +52,11 @@ export function SignUpForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4">
+    <form onSubmit={onSubmit} className="flex flex-col gap-5">
       <div className="flex flex-col gap-2">
-        <Label htmlFor="fullName">Full name</Label>
+        <Label htmlFor="fullName" className="text-sm font-medium">
+          Full name
+        </Label>
         <Input
           id="fullName"
           type="text"
@@ -63,10 +65,13 @@ export function SignUpForm() {
           value={fullName}
           onChange={(e) => setFullName(e.target.value)}
           placeholder="Jane Doe"
+          className="h-11"
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-sm font-medium">
+          Email
+        </Label>
         <Input
           id="email"
           type="email"
@@ -75,10 +80,13 @@ export function SignUpForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
+          className="h-11"
         />
       </div>
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-sm font-medium">
+          Password
+        </Label>
         <Input
           id="password"
           type="password"
@@ -88,9 +96,10 @@ export function SignUpForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="At least 6 characters"
+          className="h-11"
         />
       </div>
-      <Button type="submit" disabled={loading} className="mt-2">
+      <Button type="submit" disabled={loading} className="mt-1 h-11 text-base">
         {loading ? (
           <>
             <Spinner className="size-4" /> Creating account...

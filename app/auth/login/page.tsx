@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { CheckCircle2 } from "lucide-react"
 import { LoginForm } from "@/components/auth/login-form"
+import { AuthShell } from "@/components/auth/auth-shell"
 import { createClient } from "@/lib/supabase/server"
 
 export default async function LoginPage() {
@@ -15,32 +15,22 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh flex flex-col">
-      <header className="border-b border-border">
-        <div className="mx-auto max-w-6xl px-6 py-4">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="size-8 rounded-md bg-primary flex items-center justify-center">
-              <CheckCircle2 className="size-5 text-primary-foreground" />
-            </div>
-            <span className="font-semibold tracking-tight">Tasker</span>
+    <AuthShell
+      title="Welcome back."
+      subtitle="Log in to pick up where you left off."
+      footer={
+        <>
+          New here?{" "}
+          <Link
+            href="/auth/sign-up"
+            className="text-foreground font-medium hover:underline underline-offset-4"
+          >
+            Create an account
           </Link>
-        </div>
-      </header>
-      <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm">
-          <div className="mb-8">
-            <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Log in to manage your tasks.</p>
-          </div>
-          <LoginForm />
-          <p className="mt-6 text-sm text-muted-foreground text-center">
-            Don&apos;t have an account?{" "}
-            <Link href="/auth/sign-up" className="text-foreground font-medium hover:underline">
-              Sign up
-            </Link>
-          </p>
-        </div>
-      </main>
-    </div>
+        </>
+      }
+    >
+      <LoginForm />
+    </AuthShell>
   )
 }

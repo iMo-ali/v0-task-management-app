@@ -86,17 +86,21 @@ export function TaskFormDialog({ open, onOpenChange, task }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{task ? "Edit task" : "New task"}</DialogTitle>
+          <DialogTitle className="font-serif text-2xl tracking-tight">
+            {task ? "Edit task" : "New task"}
+          </DialogTitle>
           <DialogDescription>
             {task
               ? "Update the details of your task."
-              : "Add a new task to your list."}
+              : "Something on your mind? Capture it here."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form onSubmit={onSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title" className="text-sm font-medium">
+              Title
+            </Label>
             <Input
               id="title"
               required
@@ -105,28 +109,35 @@ export function TaskFormDialog({ open, onOpenChange, task }: Props) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               autoFocus
+              className="h-11 text-base"
             />
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="text-sm font-medium">
+              Description{" "}
+              <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
             <Textarea
               id="description"
               rows={3}
-              placeholder="Optional details..."
+              placeholder="Add any details, notes, or context..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              className="resize-none"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status" className="text-sm font-medium">
+                Status
+              </Label>
               <Select
                 value={status}
                 onValueChange={(v) => setStatus(v as TaskStatus)}
               >
-                <SelectTrigger id="status">
+                <SelectTrigger id="status" className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -138,30 +149,51 @@ export function TaskFormDialog({ open, onOpenChange, task }: Props) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="priority">Priority</Label>
+              <Label htmlFor="priority" className="text-sm font-medium">
+                Priority
+              </Label>
               <Select
                 value={priority}
                 onValueChange={(v) => setPriority(v as TaskPriority)}
               >
-                <SelectTrigger id="priority">
+                <SelectTrigger id="priority" className="h-11">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="low">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="size-1.5 rounded-full bg-muted-foreground/50" />
+                      Low
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="medium">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="size-1.5 rounded-full bg-foreground/60" />
+                      Medium
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="high">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="size-1.5 rounded-full bg-brand" />
+                      High
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           <div className="flex flex-col gap-2">
-            <Label htmlFor="due_date">Due date</Label>
+            <Label htmlFor="due_date" className="text-sm font-medium">
+              Due date{" "}
+              <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
             <Input
               id="due_date"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+              className="h-11"
             />
           </div>
 
