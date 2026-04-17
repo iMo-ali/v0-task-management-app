@@ -30,13 +30,15 @@ export function UserMenu({ email, name }: { email: string; name: string }) {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="h-9 px-2 gap-2"
+          className="h-10 px-2 gap-2.5 rounded-full hover:bg-muted"
           aria-label="Open user menu"
         >
-          <span className="size-7 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-medium">
+          <span className="size-8 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-medium tracking-wide">
             {initials}
           </span>
-          <span className="hidden sm:inline text-sm">{name}</span>
+          <span className="hidden sm:inline text-sm font-medium max-w-[140px] truncate">
+            {name.split(" ")[0]}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

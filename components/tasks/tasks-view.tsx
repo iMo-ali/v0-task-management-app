@@ -21,13 +21,6 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group"
-import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,7 +38,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty"
 import { TaskFormDialog } from "./task-form-dialog"
 import {
   deleteTaskAction,
@@ -127,21 +127,32 @@ export function TasksView({ tasks }: { tasks: Task[] }) {
   }
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-          <TabsList>
-            <TabsTrigger value="all" className="gap-2">
-              All <span className="text-muted-foreground text-xs">{counts.all}</span>
-            </TabsTrigger>
-            <TabsTrigger value="open" className="gap-2">
-              Open <span className="text-muted-foreground text-xs">{counts.open}</span>
-            </TabsTrigger>
-            <TabsTrigger value="done" className="gap-2">
-              Done <span className="text-muted-foreground text-xs">{counts.done}</span>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+    <div className="rounded-2xl border border-border bg-card overflow-hidden">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between p-4 md:p-5 border-b border-border">
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/60 self-start">
+          <FilterPill
+            active={filter === "all"}
+            onClick={() => setFilter("all")}
+            count={counts.all}
+          >
+            All
+          </FilterPill>
+          <FilterPill
+            active={filter === "open"}
+            onClick={() => setFilter("open")}
+            count={counts.open}
+          >
+            Open
+          </FilterPill>
+          <FilterPill
+            active={filter === "done"}
+            onClick={() => setFilter("done")}
+            count={counts.done}
+          >
+            Done
+          </FilterPill>
+        </div>
 
         <div className="flex gap-2">
           <InputGroup className="w-full sm:w-64">
@@ -155,39 +166,40 @@ export function TasksView({ tasks }: { tasks: Task[] }) {
               aria-label="Search tasks"
             />
           </InputGroup>
-          <Button onClick={openNewTask} className="gap-2 shrink-0">
+          <Button onClick={openNewTask} className="gap-2 shrink-0 h-10">
             <Plus className="size-4" />
             <span className="hidden sm:inline">New task</span>
           </Button>
         </div>
       </div>
 
+      {/* List */}
       {filtered.length === 0 ? (
-        <Empty className="border rounded-lg">
+        <Empty className="p-10">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <ListTodo />
             </EmptyMedia>
             <EmptyTitle>
-              {tasks.length === 0 ? "No tasks yet" : "Nothing matches your filters"}
+              {tasks.length === 0 ? "A clean slate." : "Nothing matches."}
             </EmptyTitle>
             <EmptyDescription>
               {tasks.length === 0
                 ? "Add your first task to get started."
-                : "Try adjusting your search or switching tabs."}
+                : "Try a different search or filter."}
             </EmptyDescription>
           </EmptyHeader>
           {tasks.length === 0 ? (
             <EmptyContent>
               <Button onClick={openNewTask} className="gap-2">
                 <Plus className="size-4" />
-                New task
+                Add your first task
               </Button>
             </EmptyContent>
           ) : null}
         </Empty>
       ) : (
-        <ul className="flex flex-col gap-2">
+        <ul className="divide-y divide-border">
           {filtered.map((task) => (
             <TaskRow
               key={task.id}
@@ -214,7 +226,9 @@ export function TasksView({ tasks }: { tasks: Task[] }) {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete this task?</AlertDialogTitle>
             <AlertDialogDescription>
-              {deleteTarget ? `"${deleteTarget.title}" will be permanently deleted.` : ""}
+              {deleteTarget
+                ? `"${deleteTarget.title}" will be permanently deleted.`
+                : ""}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -226,12 +240,47 @@ export function TasksView({ tasks }: { tasks: Task[] }) {
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              Delete task
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  )
+}
+
+function FilterPill({
+  active,
+  onClick,
+  children,
+  count,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+  count: number
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all",
+        active
+          ? "bg-background text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {children}
+      <span
+        className={cn(
+          "text-xs tabular-nums",
+          active ? "text-muted-foreground" : "text-muted-foreground/70",
+        )}
+      >
+        {count}
+      </span>
+    </button>
   )
 }
 
@@ -247,55 +296,92 @@ function TaskRow({
   onDelete: () => void
 }) {
   const isDone = task.status === "done"
+  const dueInfo = task.due_date ? getDueInfo(task.due_date) : null
 
   return (
-    <li
-      className={cn(
-        "group flex items-start gap-3 rounded-lg border border-border bg-card px-4 py-3 transition-colors",
-        "hover:border-ring/40",
-      )}
-    >
-      <Checkbox
-        checked={isDone}
-        onCheckedChange={onToggle}
-        className="mt-1"
-        aria-label={isDone ? "Mark as not done" : "Mark as done"}
+    <li className="group relative flex items-start gap-4 px-5 py-4 transition-colors hover:bg-muted/40">
+      {/* Priority stripe */}
+      <span
+        aria-hidden
+        className={cn(
+          "absolute left-0 top-4 bottom-4 w-0.5 rounded-r-full",
+          priorityStripe(task.priority, isDone),
+        )}
       />
 
+      {/* Checkbox */}
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-label={isDone ? "Mark as not done" : "Mark as done"}
+        className={cn(
+          "mt-0.5 size-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all",
+          isDone
+            ? "bg-foreground border-foreground"
+            : "border-border bg-background hover:border-foreground/50",
+        )}
+      >
+        {isDone ? (
+          <Check className="size-3 text-background" strokeWidth={3} />
+        ) : null}
+      </button>
+
+      {/* Content */}
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <p
+        <div className="flex flex-wrap items-start gap-2">
+          <button
+            type="button"
+            onClick={onEdit}
             className={cn(
-              "font-medium text-sm leading-6 break-words",
-              isDone && "line-through text-muted-foreground",
+              "text-left font-medium leading-6 break-words hover:text-brand transition-colors",
+              isDone && "line-through text-muted-foreground hover:text-muted-foreground",
             )}
           >
             {task.title}
-          </p>
-          <StatusBadge status={task.status} />
-          <PriorityBadge priority={task.priority} />
+          </button>
         </div>
 
         {task.description ? (
-          <p className="mt-1 text-sm text-muted-foreground leading-relaxed break-words">
+          <p
+            className={cn(
+              "mt-1 text-sm text-muted-foreground leading-relaxed break-words line-clamp-2",
+              isDone && "line-through",
+            )}
+          >
             {task.description}
           </p>
         ) : null}
 
-        {task.due_date ? (
-          <div className="mt-2 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-            <CalendarDays className="size-3.5" />
-            <span>Due {formatDate(task.due_date)}</span>
-          </div>
-        ) : null}
+        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+          <StatusChip status={task.status} />
+          <PriorityChip priority={task.priority} />
+          {dueInfo ? (
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 font-medium",
+                isDone
+                  ? "text-muted-foreground line-through"
+                  : dueInfo.tone === "overdue"
+                  ? "text-destructive"
+                  : dueInfo.tone === "today"
+                  ? "text-brand"
+                  : "text-muted-foreground",
+              )}
+            >
+              <CalendarDays className="size-3.5" />
+              {dueInfo.label}
+            </span>
+          ) : null}
+        </div>
       </div>
 
+      {/* Actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="icon"
-            className="size-8 text-muted-foreground"
+            className="size-8 text-muted-foreground opacity-0 group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 transition-opacity"
             aria-label="Task actions"
           >
             <MoreHorizontal className="size-4" />
@@ -304,7 +390,11 @@ function TaskRow({
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={onEdit} className="cursor-pointer">
             <Pencil className="size-4" />
-            <span>Edit</span>
+            <span>Edit task</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={onToggle} className="cursor-pointer">
+            <Check className="size-4" />
+            <span>{isDone ? "Mark as open" : "Mark as done"}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
@@ -320,64 +410,101 @@ function TaskRow({
   )
 }
 
-function StatusBadge({ status }: { status: TaskStatus }) {
+function priorityStripe(priority: TaskPriority, isDone: boolean) {
+  if (isDone) return "bg-transparent"
+  return {
+    low: "bg-transparent",
+    medium: "bg-foreground/40",
+    high: "bg-brand",
+  }[priority]
+}
+
+function StatusChip({ status }: { status: TaskStatus }) {
   if (status === "done") {
     return (
-      <Badge variant="secondary" className="gap-1 font-normal">
-        <Check className="size-3" /> Done
-      </Badge>
+      <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+        <Check className="size-3.5" />
+        Done
+      </span>
     )
   }
   if (status === "in_progress") {
     return (
-      <Badge variant="secondary" className="gap-1 font-normal bg-accent text-accent-foreground">
-        <Clock className="size-3" /> In progress
-      </Badge>
+      <span className="inline-flex items-center gap-1.5 text-accent-foreground">
+        <Clock className="size-3.5" />
+        In progress
+      </span>
     )
   }
   return (
-    <Badge variant="outline" className="gap-1 font-normal">
-      <CircleDashed className="size-3" /> To do
-    </Badge>
-  )
-}
-
-function PriorityBadge({ priority }: { priority: TaskPriority }) {
-  const styles: Record<TaskPriority, string> = {
-    low: "text-muted-foreground",
-    medium: "text-foreground",
-    high: "text-destructive",
-  }
-  const dotStyles: Record<TaskPriority, string> = {
-    low: "bg-muted-foreground/60",
-    medium: "bg-primary",
-    high: "bg-destructive",
-  }
-  const labels: Record<TaskPriority, string> = {
-    low: "Low",
-    medium: "Medium",
-    high: "High",
-  }
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-0.5 text-xs font-normal",
-        styles[priority],
-      )}
-    >
-      <span className={cn("size-1.5 rounded-full", dotStyles[priority])} />
-      {labels[priority]}
+    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+      <CircleDashed className="size-3.5" />
+      To do
     </span>
   )
 }
 
-function formatDate(iso: string) {
+function PriorityChip({ priority }: { priority: TaskPriority }) {
+  const config = {
+    low: {
+      label: "Low",
+      dot: "bg-muted-foreground/50",
+      text: "text-muted-foreground",
+    },
+    medium: {
+      label: "Medium",
+      dot: "bg-foreground/60",
+      text: "text-muted-foreground",
+    },
+    high: {
+      label: "High",
+      dot: "bg-brand",
+      text: "text-brand",
+    },
+  }[priority]
+
+  return (
+    <span className={cn("inline-flex items-center gap-1.5 font-medium", config.text)}>
+      <span className={cn("size-1.5 rounded-full", config.dot)} />
+      {config.label}
+    </span>
+  )
+}
+
+function getDueInfo(iso: string): {
+  label: string
+  tone: "overdue" | "today" | "upcoming"
+} {
   const date = new Date(iso + "T00:00:00")
-  if (Number.isNaN(date.getTime())) return iso
-  return date.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year:
-      date.getFullYear() === new Date().getFullYear() ? undefined : "numeric",
-  })
+  if (Number.isNaN(date.getTime())) return { label: iso, tone: "upcoming" }
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const diffMs = date.getTime() - today.getTime()
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24))
+
+  if (diffDays < 0) {
+    const days = Math.abs(diffDays)
+    return {
+      label: `Overdue by ${days} ${days === 1 ? "day" : "days"}`,
+      tone: "overdue",
+    }
+  }
+  if (diffDays === 0) return { label: "Due today", tone: "today" }
+  if (diffDays === 1) return { label: "Due tomorrow", tone: "upcoming" }
+  if (diffDays < 7)
+    return {
+      label: `Due ${date.toLocaleDateString(undefined, { weekday: "long" })}`,
+      tone: "upcoming",
+    }
+
+  return {
+    label: `Due ${date.toLocaleDateString(undefined, {
+      month: "short",
+      day: "numeric",
+      year:
+        date.getFullYear() === today.getFullYear() ? undefined : "numeric",
+    })}`,
+    tone: "upcoming",
+  }
 }
